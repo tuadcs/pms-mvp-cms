@@ -1,0 +1,39 @@
+name: Deploy Angular MVP to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular app
+        run: |
+          npm run build -- --configuration production --base-href /pms-mvp-cms/
+          
+      - name: List dist
+        run: ls -R dist/pms-mvp
+
+      - name: Deploy to mvp-view branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: mvp-view            
+          folder: dist/pms-mvp  
+          clean: true                  
+          commit-message: "Deploy from dev: ${GITHUB_SHA}"
+
